@@ -4,6 +4,7 @@ import json
 import time
 import datetime
 import re
+from random import randint
 
 # 这玩意获取学生基本信息的网址实际上是 https://app.upc.edu.cn/uc/api/oauth/index?redirect=http://stu.gac.upc.edu.cn:8089/xswc&appid
 # =200200819124942787&state=2 剩下的前端根本不验证你的 Cookies
@@ -69,6 +70,8 @@ def AbsentReq(days):
                 '用时 {} s,请假时间为 {} 的请假已成功，返回为{}.'.format(time.time() - now, data['stuStartTime'], str(response.json())))
         else:
             print('用时 {} s,请假失败，返回为: {}'.format(time.time() - now, response.json()['mess'], str(response.json())))
+    # 学校做了防快速请求，这里加一个随机延时。。。
+    time.sleep(60+randint(5,10))
     # 返回值
     # 重复提交：{"resultStat":"error","mess":"您2021-03-16的请假信息已提交，请勿重复添加。","data":null,"othermess":null}
     # 成功提交：{"resultStat":"success","mess":"成功","data":1,"othermess":null}
@@ -80,8 +83,8 @@ if __name__ == '__main__':
 
     ctypes.windll.kernel32.SetConsoleTitleW("UPC一键请假")
     try:
-        print("正在检测当前操作环境是否处于石大校内网络，用时可能较长，请稍作等待……")
-        jwxt = requests.get("http://jwxt.upc.edu.cn",timeout=10) #直接访问一个外网没法访问的校内资源试试看
+        print("正在检测当前操作环境是否能够访问平安石大，用时可能较长，请稍作等待……")
+        jwxt = requests.get("http://stu.gac.upc.edu.cn:8089",timeout=10) #直接访问一个外网没法访问的校内资源试试看
         if jwxt.status_code != 200:
             raise TypeError("请确保当前处于校园网环境下！")
     except Exception as e:
@@ -92,7 +95,7 @@ if __name__ == '__main__':
         print("您正处于石大校园网中！")
     print('')
     print("出发咯~丢~~~~")
-    print("不要大力拍打或者滑动哦(误)")
+    print("不要大力拍打或者滑动哦")
     print('')
     stu_id = ''
     while stu_id.isdigit and not stu_id:
